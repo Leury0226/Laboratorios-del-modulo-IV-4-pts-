@@ -1,0 +1,18 @@
+393  sudo apt update
+  394  sudo apt install apache2 -y
+  395  sudo nano /var/www/html/index.html
+  396  sudo systemctl status apache2
+  397  sudo systemctl start apache2
+  398  sudo systemctl status apache2
+  399  sudo cp /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/holamundo.conf
+  400  sudo nano /etc/apache2/sites-available/holamundo.conf
+  401  sudo a2ensite holamundo.conf
+  402  sudo systemctl reload apache2
+  403  sudo mkdir /var/www/misitio
+  404  sudo nano /var/www/misitio/index.html
+  405  sudo nano /etc/apache2/sites-available/misitio.conf
+  406  sudo a2ensite misitio.conf
+  407  sudo systemctl reload apache2
+  408  sudo a2ensite misitio.conf
+  409  sudo nano /etc/apache2/ports.conf
+  410  sudo systemctl reload apache2

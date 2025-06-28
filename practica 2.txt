@@ -1,0 +1,12 @@
+414  sudo apt update -y
+  415  sudo apt install postfix mailutils -y libsas12-module -y
+  416  sudo apt install postfix mailutils -y
+  417  sudo systemctl enable --now postfix
+  418  sudo systemctl status postfix
+  419  sudo nano /etc/postfix/main.cf
+  420  sudo postmap /etc/postfix/sasl_passwd
+  421  sudo chmod 600 /etc/postfix/sasl_passwd /etc/postfix/sasl_passwd.db
+  422  sudo systemctl restart postfix
+  423  sudo systemctl status postfix
+  424  echo "nombre: Leury Reinoso Matricula: 2024-1309" | mail -s "MambruSefueAlaGerra" os3conadrian@gmail.com
+  425  tail -f /var/log/mail.log
