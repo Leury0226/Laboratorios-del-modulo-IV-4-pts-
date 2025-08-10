@@ -1,0 +1,147 @@
+============================================================
+PRACTICA 1 – Servidor HTTP Apache2 con 2 sitios estáticos
+- Sitio A (puerto 80): "Hola Mundo"
+- Sitio B (puerto 8080): Nombre, Matrícula y Materia
+============================================================
+
+# 1) Instalar Apache2 y habilitar servicio
+sudo apt update && sudo apt install -y apache2
+sudo systemctl enable --now apache2
+sudo systemctl status apache2 --no-pager   # Verifica que esté activo
+
+# 2) Crear estructura de directorios para ambos sitios
+sudo mkdir -p /var/www/hola80/public_html
+sudo mkdir -p /var/www/datos8080/public_html
+
+# 3) Crear el website estático (puerto 80): "Hola Mundo"
+sudo tee /var/www/hola80/public_html/index.html >/dev/null <<'HTML'
+<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="utf-8"><title>Hola Mundo</title></head>
+<body style="font-family: sans-serif;">
+  <h1>Hola Mundo</h1>
+  <p>Este es el sitio del puerto 80.</p>
+</body>
+</html>
+HTML
+
+# 4) Crear el website estático (puerto 8080): Nombre, Matrícula y Materia
+#    Reemplaza con tus datos reales entre los <strong>...</strong>
+
+sudo tee /var/www/datos8080/public_html/index.html >/dev/null <<'HTML'
+<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="utf-8"><title>Datos del Estudiante</title></head>
+<body style="font-family: sans-serif;">
+  <h1>Datos del Estudiante</h1>
+  <ul>
+    <li>Nombre: <strong>leury</strong></li>
+    <li>Matrícula: <strong>2024-1309</strong></li>
+    <li>Materia: <strong>SO3</strong></li>
+  </ul>
+  <p>Este es el sitio del puerto 8080.</p>
+</body>
+</html>
+HTML
+
+# 5) Permisos mínimos recomendados para los directorios web
+
+sudo chown -R www-data:www-data /var/www/hola80 /var/www/datos8080
+sudo find /var/www -type d -exec chmod 755 {} \;
+sudo find /var/www -type f -exec chmod 644 {} \;
+
+# 6) Hacer que Apache escuche también en el puerto 8080
+#    (Apache ya escucha en 80 por defecto; añadimos 8080)
+
+echo | sudo tee -a /etc/apache2/ports.conf >/dev/null
+sudo grep -q '^Listen 8080' /etc/apache2/ports.conf || echo 'Listen 8080' | sudo tee -a /etc/apache2/ports.conf
+
+# 7) Crear VirtualHost para el puerto 80 (hola80.conf)
+sudo tee /etc/apache2/sites-available/hola80.conf >/dev/null <<'APACHECONF'
+
+<VirtualHost *:80>
+    ServerAdmin webmaster@localhost
+    DocumentRoot /var/www/hola80/public_html
+    # Opcional: ServerName hola.local
+    <Directory /var/www/hola80/public_html>
+        Options Indexes FollowSymLinks
+        AllowOverride None
+        Require all granted
+    </Directory>
+    ErrorLog ${APACHE_LOG_DIR}/hola80_error.log
+    CustomLog ${APACHE_LOG_DIR}/hola80_access.log combined
+</VirtualHost>
+APACHECONF
+
+# 8) Crear VirtualHost para el puerto 8080 (datos8080.conf)
+sudo tee /etc/apache2/sites-available/datos8080.conf >/dev/null <<'APACHECONF'
+
+<VirtualHost *:8080>
+    ServerAdmin webmaster@localhost
+    DocumentRoot /var/www/datos8080/public_html
+    # Opcional: ServerName datos.local
+    <Directory /var/www/datos8080/public_html>
+        Options Indexes FollowSymLinks
+        AllowOverride None
+        Require all granted
+    </Directory>
+    ErrorLog ${APACHE_LOG_DIR}/datos8080_error.log
+    CustomLog ${APACHE_LOG_DIR}/datos8080_access.log combined
+</VirtualHost>
+APACHECONF
+
+# 9) Deshabilitar el sitio por defecto y habilitar los nuevos
+sudo a2dissite 000-default.conf
+sudo a2ensite hola80.conf datos8080.conf
+
+# 10) Probar sintaxis y recargar Apache
+sudo apache2ctl configtest          # Debe decir: Syntax OK
+sudo systemctl reload apache2
+
+# 11) Validación local (desde la VM)
+curl -sI http://localhost | head -n1      # Debe responder HTTP/1.1 200 OK (o 302/301 si hay redirección)
+curl -s http://localhost                  # Debe mostrar "Hola Mundo"
+curl -s http://localhost:8080 | grep -E 'LEURY|2024-1309|SO3'   # Debe encontrar tus datos
+
+# (Si usas firewall, abrir puertos; en Kali normalmente no hay ufw activo)
+sudo ufw allow 80/tcp
+sudo ufw allow 8080/tcp
+sudo ufw reload
+
+# 12) Validación desde el host Windows (cambia <IP_VM> por la IP de tu VM)
+# En Windows (CMD/PowerShell):
+
+#   curl http://<IP_VM>/
+#   curl http://<IP_VM>:8080/
+#   # o desde navegador: http://<IP_VM>/ y http://<IP_VM>:8080/
+
+============================================================
+NOTA: Si prefieres NGINX en vez de Apache2
+(opcional, sólo referencia rápida; NO necesario si ya hiciste Apache)
+============================================================
+
+sudo apt install -y nginx
+sudo tee /etc/nginx/sites-available/hola80 >/dev/null <<'NGINX'
+server {
+listen 80;
+    root /var/www/hola80/public_html;
+index index.html;
+     access_log /var/log/nginx/hola80_access.log;
+     error_log  /var/log/nginx/hola80_error.log;
+ }
+ NGINX
+
+ sudo tee /etc/nginx/sites-available/datos8080 >/dev/null <<'NGINX'
+ server {
+     listen 8080;
+     root /var/www/datos8080/public_html;
+     index index.html;
+     access_log /var/log/nginx/datos8080_access.log;
+     error_log  /var/log/nginx/datos8080_error.log;
+ }
+ NGINX
+
+
+ sudo ln -s /etc/nginx/sites-available/hola80 /etc/nginx/sites-enabled/
+ sudo ln -s /etc/nginx/sites-available/datos8080 /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl reload nginx
