@@ -1,12 +1,30 @@
-414  sudo apt update -y
-  415  sudo apt install postfix mailutils -y libsas12-module -y
-  416  sudo apt install postfix mailutils -y
-  417  sudo systemctl enable --now postfix
-  418  sudo systemctl status postfix
-  419  sudo nano /etc/postfix/main.cf
-  420  sudo postmap /etc/postfix/sasl_passwd
-  421  sudo chmod 600 /etc/postfix/sasl_passwd /etc/postfix/sasl_passwd.db
-  422  sudo systemctl restart postfix
-  423  sudo systemctl status postfix
-  424  echo "nombre: Leury Reinoso Matricula: 2024-1309" | mail -s "MambruSefueAlaGerra" os3conadrian@gmail.com
-  425  tail -f /var/log/mail.log
+============================================================
+PRACTICA 2 – Instalación y prueba de servidor SMTP (Postfix)
+============================================================
+
+# 1 Actualizar repositorios
+sudo apt update && sudo apt upgrade -y
+
+# 2 Instalar Postfix
+sudo apt install -y postfix mailutils
+
+# Durante la instalación de Postfix:
+# -----------------------------------
+#   - Tipo de configuración: "Internet Site"
+#   - Nombre de correo del sistema (System mail name): escribe tu dominio o "localhost"
+
+# 3 Verificar que Postfix está corriendo
+sudo systemctl status postfix
+
+# Si no está activo:
+sudo systemctl enable --now postfix
+
+# 4 Probar envío del correo requerido
+echo "TuNombre - TuMatricula" | mail -s "MambruSeFueALaGuerra" os3conadrian@gmail.com
+
+# 5 Comprobar la cola de correo (por si hay errores o está en espera)
+mailq
+
+# 6 Revisar logs de Postfix para confirmar que el mensaje se envió
+sudo tail -n 20 /var/log/mail.log
+
