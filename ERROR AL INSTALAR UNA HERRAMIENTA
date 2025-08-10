@@ -1,0 +1,17 @@
+# ====== 1) Limpiar completamente la caché y las listas dañadas ======
+sudo apt-get clean                                   # Limpia paquetes descargados
+sudo rm -rf /var/lib/apt/lists/*                     # Borra listas corruptas
+sudo mkdir -p /var/lib/apt/lists/partial             # Recrea el dir parcial
+
+# (Opcional) Si quedó alguna traba de cnf-update-db (command-not-found), no pasa nada:
+# Se regenerará sola después de un update exitoso.
+
+# ====== 2) Actualizar forzando IPv4 y prefiriendo compresión gz ======
+sudo apt-get update \
+  -o Acquire::ForceIPv4=true \
+  -o Acquire::CompressionTypes::Order::=gz
+
+# Si ves errores transitorios de red, intenta también:
+# sudo apt-get update --fix-missing \
+#   -o Acquire::ForceIPv4=true \
+#   -o Acquire::CompressionTypes::Order::=gz
