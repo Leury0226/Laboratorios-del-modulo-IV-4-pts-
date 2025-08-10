@@ -1,0 +1,44 @@
+============================================================
+PRACTICA 3 – Servidor de Impresión con CUPS + PDF Virtual
+============================================================
+
+# 1 Actualizar repositorios e instalar CUPS y PDF virtual printer
+sudo apt update && sudo apt install -y cups printer-driver-cups-pdf
+
+# 2 Habilitar y arrancar el servicio CUPS
+sudo systemctl enable --now cups
+sudo systemctl status cups
+
+# 3 Permitir administración remota de CUPS (para configurar desde navegador)
+sudo cupsctl --remote-admin --remote-any --share-printers
+
+# 4 Verificar que el firewall (si está activo) permita el puerto 631
+#    (En Kali normalmente no está ufw activo, pero si lo tienes, haz:)
+sudo ufw allow 631/tcp
+
+# 5 Abrir el panel de CUPS en navegador desde el servidor:
+http://localhost:631
+
+# 6 Añadir la impresora PDF virtual:
+# En el panel de CUPS → "Administration" → "Add Printer"
+#  - Seleccionar: "CUPS-PDF (Virtual PDF Printer)"
+#  - Poner nombre descriptivo (ej. PDF_Virtual)
+#  - Marcar "Share This Printer"
+#  - En Driver elegir: Generic → Generic CUPS-PDF Printer (o similar)
+#  - Guardar configuración.
+
+# 7 Probar impresión desde el servidor
+# lp /etc/hosts -d PDF_Virtual
+# El PDF aparecerá en: /var/spool/cups-pdf/<usuario>
+
+# 8 Conexión desde el cliente (Windows u otra PC)
+# En el cliente, añadir impresora con la IP del servidor:
+# - En Windows: Panel de Control → Dispositivos e Impresoras → Agregar Impresora → "Agregar impresora por dirección IP o nombre de host"
+# - Tipo: "Protocolo LPD" o "IPP" (IPP suele ser más estable)
+# - Dirección: ipp://<IP_DEL_SERVIDOR>:631/printers/PDF_Virtual
+# - Instalar driver genérico si Windows lo pide.
+
+# 9 Probar impresión desde el cliente con un archivo Word
+# Abrir Word → Archivo → Imprimir → Seleccionar "PDF_Virtual" → Imprimir
+# El archivo PDF aparecerá en el directorio de salida de CUPS PDF en el servidor:
+#   /var/spool/cups-pdf/<usuario>
