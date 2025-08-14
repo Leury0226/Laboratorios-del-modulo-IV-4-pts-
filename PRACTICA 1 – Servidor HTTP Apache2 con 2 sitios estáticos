@@ -145,3 +145,82 @@ index index.html;
  sudo ln -s /etc/nginx/sites-available/hola80 /etc/nginx/sites-enabled/
  sudo ln -s /etc/nginx/sites-available/datos8080 /etc/nginx/sites-enabled/
 sudo nginx -t && sudo systemctl reload nginx
+
+
+
+
+
+
+
+
+
+p1 corrreo
+nano ~/.msmtprc
+
+# ~/.msmtprc - Configuración directa para Gmail
+defaults
+auth           on
+tls            on
+tls_trust_file /etc/ssl/certs/ca-certificates.crt
+logfile        ~/.msmtp.log
+
+account gmail
+host           smtp.gmail.com
+port           587
+from           TU_CORREO@gmail.com
+user           TU_CORREO@gmail.com
+password       TU_APP_PASSWORD_DE_16_CARACTERES
+
+account default : gmail
+
+
+chmod 600 ~/.msmtprc
+
+echo -e "Subject: Prueba msmtp\n\nHola, esto es una prueba." | msmtp -t TU_CORREO@gmail.com
+
+
+
+
+
+nano ~/enviar_gmail.sh
+
+#!/bin/bash
+set -euo pipefail
+
+read -p "Correo destinatario: " DEST
+read -p "Asunto: " SUBJECT
+echo "Escribe el cuerpo del mensaje (termina con CTRL+D):"
+BODY=$(</dev/stdin)
+
+SERVER_TIME=$(date +"%Y-%m-%d %H:%M:%S %Z")
+
+# Tomamos el remitente de la config (línea 'from' en ~/.msmtprc)
+FROM_ADDR=$(awk '/^from[[:space:]]/{print $2}' ~/.msmtprc)
+
+# Construimos el mensaje con cabeceras RFC
+{
+  echo "From: ${FROM_ADDR}"
+  echo "To: ${DEST}"
+  echo "Subject: ${SUBJECT}"
+  echo "Date: $(LC_ALL=C date -R)"
+  echo "MIME-Version: 1.0"
+  echo "Content-Type: text/plain; charset=UTF-8"
+  echo
+  echo "$BODY"
+  echo
+  echo "---"
+  echo "Hora actual del servidor: $SERVER_TIME"
+} | msmtp -t
+
+echo "Correo enviado a ${DEST}."
+
+
+chmod +x ~/enviar_gmail.sh
+
+
+~/enviar_gmail.sh
+
+
+
+
+
