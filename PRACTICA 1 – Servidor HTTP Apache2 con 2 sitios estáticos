@@ -167,8 +167,8 @@ logfile        ~/.msmtp.log
 account gmail
 host           smtp.gmail.com
 port           587
-from           TU_CORREO@gmail.com
-user           TU_CORREO@gmail.com
+from           leurynoso12@gmail.com
+user           leurynoso12@gmail.com
 password       TU_APP_PASSWORD_DE_16_CARACTERES
 
 account default : gmail
@@ -219,6 +219,7 @@ chmod +x ~/enviar_gmail.sh
 
 
 ~/enviar_gmail.sh
+
 
 
 
