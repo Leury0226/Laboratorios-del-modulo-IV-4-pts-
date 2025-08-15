@@ -16,6 +16,11 @@ sudo cupsctl --remote-admin --remote-any --share-printers
 #    (En Kali normalmente no está ufw activo, pero si lo tienes, haz:)
 sudo ufw allow 631/tcp
 
+
+sudo passwd root
+sudo usermod -aG lpadmin leury && newgrp lpadmin
+
+
 # 5 Abrir el panel de CUPS en navegador desde el servidor:
 http://localhost:631
 
