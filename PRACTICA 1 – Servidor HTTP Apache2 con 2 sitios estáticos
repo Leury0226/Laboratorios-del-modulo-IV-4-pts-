@@ -155,14 +155,14 @@ sudo nginx -t && sudo systemctl reload nginx
 
 
 p1 corrreo
-nano ~/.msmtprc
+nano /home/leury/.msmtprc
 
 # ~/.msmtprc - Configuración directa para Gmail
 defaults
 auth           on
 tls            on
 tls_trust_file /etc/ssl/certs/ca-certificates.crt
-logfile        ~/.msmtp.log
+logfile        home/leury/.msmtp.log
 
 account gmail
 host           smtp.gmail.com
@@ -175,15 +175,15 @@ password       sysl auer uzsc mdwb
 account default : gmail
 
 
-chmod 600 ~/.msmtprc
+chmod 600 /home/leury/.msmtprc
 
-echo -e "Subject: Prueba msmtp\n\nHola, esto es una prueba." | msmtp -t TU_CORREO@gmail.com
-
-
+echo -e "Subject: Prueba msmtp\n\nHola, esto es una prueba." | msmtp -t leurynoso11@gmail.com
 
 
 
-nano ~/enviar_gmail.sh
+
+nano /home/leury/enviar_gmail.sh
+
 
 #!/bin/bash
 set -euo pipefail
@@ -216,10 +216,11 @@ FROM_ADDR=$(awk '/^from[[:space:]]/{print $2}' ~/.msmtprc)
 echo "Correo enviado a ${DEST}."
 
 
-chmod +x ~/enviar_gmail.sh
+chmod +x /home/leury/enviar_gmail.sh
 
 
-~/enviar_gmail.sh
+/home/leury/enviar_gmail.sh
+
 
 
 
