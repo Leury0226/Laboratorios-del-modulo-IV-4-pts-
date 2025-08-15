@@ -169,7 +169,8 @@ host           smtp.gmail.com
 port           587
 from           leurynoso12@gmail.com
 user           leurynoso12@gmail.com
-password       TU_APP_PASSWORD_DE_16_CARACTERES
+password       sysl auer uzsc mdwb
+
 
 account default : gmail
 
@@ -219,6 +220,7 @@ chmod +x ~/enviar_gmail.sh
 
 
 ~/enviar_gmail.sh
+
 
 
 
